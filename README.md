@@ -1,5 +1,5 @@
 # Proyecto_RestauranteEDyA
-# Sistema de Optimización de Rutas - Restaurante El Aguacate / Los Compadres
+# Sistema de Optimización de Rutas - Los Compadres
 
 Este proyecto es el examen práctico final y proyecto integrado para la materia de Estructuras de Datos y Algoritmos (EdyA). Desarrollamos una API REST en el backend usando Java 17 y Spring Boot 3.x, junto con una interfaz web sencilla en el frontend para probar y visualizar el comportamiento de diferentes algoritmos de grafos.
 
