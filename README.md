@@ -7,7 +7,7 @@ Este proyecto es el examen práctico final y proyecto integrado para la materia 
 
 ## Contexto del Proyecto
 
-Para que el proyecto tuviera una aplicación real, decidimos modelar la logística y distribución física de nuestro restaurante familiar, "El Aguacate / Los Compadres". 
+Para que el proyecto tuviera una aplicación real, decidimos modelar la logística y distribución física del restaurante familiar, "Los Compadres". 
 
 El espacio del local se representó mediante un grafo:
 - Nodos: Son los puntos fijos clave dentro del negocio, como la Cocina Principal, la Barra de Bebidas, la Caja de Cobro, el Almacén General y las diferentes zonas de mesas (Zona de Birria, Zona de Tortas Ahogadas, Sección Terraza). Cada área tiene coordenadas X e Y fijas en metros.
