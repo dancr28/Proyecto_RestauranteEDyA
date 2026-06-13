@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Los Compadres</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<div class="d-flex justify-content-center align-items-center gap-3 mb-4">
+        <img src="https://i.ibb.co/BHhgHPCy/file.png" alt="Logo" class="rounded-circle shadow-sm" style="width: 300px; height: 300px; object-fit: cover;">
+<body class="bg-light">
+    
+<div class="container mt-4">
+    
+    <div class="text-center mb-4">
+        <h1 class="text-success">Los Compadres: Birria y Guisos</h1>
+        <p class="text-muted">Examen Práctico Final: Optimización de Trayectos y Grafos</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-dark text-white fw-bold">Configuración del Grafo (JSON)</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Selecciona el Algoritmo:</label>
+                        <select id="algoritmo" class="form-select text-primary fw-bold" onchange="ajustarCampos()">
+                            <option value="dfs">DFS - Búsqueda en Profundidad</option>
+                            <option value="bfs">BFS - Búsqueda en Amplitud</option>
+                            <option value="depth-limited">DLS - Profundidad Limitada</option>
+                            <option value="iterative-deepening">IDDFS - Profundidad Iterativa</option>
+                            <option value="a-star">A* (A Estrella) - Ruta Más Corta</option>
+                            <option value="kruskal">Kruskal - Árbol Mínimo (Pasillos)</option>
+                            <option value="prim">Prim - Árbol Mínimo desde Origen</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Grafo del Restaurante (Nodos y Pasillos):</label>
+                        <textarea id="jsonInput" class="form-control text-monospace" rows="10" style="font-size: 12px;"></textarea>
+                    </div>
+
+                    <div id="campoLimite" class="mb-3 d-none">
+                        <label class="form-label fw-bold">Límite de Profundidad:</label>
+                        <input type="number" id="limiteValor" class="form-control" value="2" min="0">
+                    </div>
+
+                    <button class="btn btn-success w-100 fw-bold" onclick="ejecutarAlgoritmo()">Calcular Ruta Optima</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white fw-bold">Métricas y Resultados del Servidor</div>
+                <div class="card-body">
+                    <div class="row text-center mb-4">
+                        <div class="col-4">
+                            <div class="border rounded p-2 bg-white">
+                                <small class="text-muted d-block">Tiempo</small>
+                                <strong id="metaTiempo" class="fs-5 text-dark">0 ms</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2 bg-white">
+                                <small class="text-muted d-block">Costo Total</small>
+                                <strong id="metaCosto" class="fs-5 text-primary">0.0 m</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2 bg-white">
+                                <small class="text-muted d-block">Pasos / Iteraciones</small>
+                                <strong id="metaPasos" class="fs-5 text-warning">0</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-secondary">Resultado del Recorrido / Árbol:</h5>
+                    <div id="resultadoContenedor" class="alert alert-secondary text-monospace fw-bold fs-5" style="min-height: 100px;">
+                        Esperando ejecución...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const datosIniciales = {
+        "inicioId": "cocina",
+        "finId": "mesa3",
+        "dirigido": false,
+        "limite": 2,
+        "nodos": [
+    {"id": "cocina", "nombre": "Cocina Principal", "x": 0.0, "y": 0.0},
+    {"id": "barra", "nombre": "Barra de Bebidas", "x": 2.5, "y": 4.0},
+    {"id": "caja", "nombre": "Caja de Cobro", "x": 6.0, "y": 0.0},
+    {"id": "mesa_birria", "nombre": "Zona de Birria", "x": 5.0, "y": 3.5},
+    {"id": "mesa_ahogadas", "nombre": "Zona de Tortas Ahogadas", "x": 9.0, "y": 4.5}
+  ],
+  "aristas": [
+    {"origen": "cocina", "destino": "barra", "distancia": 4.5},
+    {"origen": "cocina", "destino": "caja", "distancia": 6.0},
+    {"origen": "barra", "destino": "mesa_birria", "distancia": 3.2},
+    {"origen": "caja", "destino": "mesa_birria", "distancia": 3.0},
+    {"origen": "mesa_birria", "destino": "mesa_ahogadas", "distancia": 4.1},
+    {"origen": "barra", "destino": "mesa_ahogadas", "distancia": 6.8}
+  ]
+    };
+
+    document.getElementById('jsonInput').value = JSON.stringify(datosIniciales, null, 2);
+
+    function ajustarCampos() {
+        const alg = document.getElementById('algoritmo').value;
+        const campoLimite = document.getElementById('campoLimite');
+        if (alg === 'depth-limited') {
+            campoLimite.classList.remove('d-none');
+        } else {
+            campoLimite.classList.add('d-none');
+        }
+    }
+
+    function ejecutarAlgoritmo() {
+        const alg = document.getElementById('algoritmo').value;
+        let cuerpo;
+        
+        try {
+            cuerpo = JSON.parse(document.getElementById('jsonInput').value);
+        } catch(e) {
+            alert("El formato JSON está mal escrito. Revísalo.");
+            return;
+        }
+
+        if (alg === 'depth-limited') {
+            cuerpo.limite = parseInt(document.getElementById('limiteValor').value);
+        }
+
+        fetch(`http://localhost:8080/api/${alg}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cuerpo)
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('metaTiempo').innerText = data.tiempoEjecucionMs + " ms";
+            document.getElementById('metaCosto').innerText = data.costoTotal.toFixed(2) + " m";
+            document.getElementById('metaPasos').innerText = data.numeroPasos;
+            
+            if(data.recorrido && data.recorrido.length > 0) {
+                document.getElementById('resultadoContenedor').innerHTML = 
+                    `<span class="text-success">${data.recorrido.join(' ➡️ ')}</span>`;
+            } else {
+                document.getElementById('resultadoContenedor').innerHTML = `<span class="text-danger">No se encontró un camino válido.</span>`;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error al conectar con el servidor de Spring Boot.");
+        });
+    }
+</script>
+</body>
+</html>
